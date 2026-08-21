@@ -44,9 +44,12 @@ const els = {
   filterDaySelect: $("#filterDaySelect"),
   entryList: $("#entryList"),
   transcribeStatus: $("#transcribeStatus"),
+  mobileTranscribeStatus: $("#mobileTranscribeStatus"),
   autoSeatToggle: $("#autoSeatToggle"),
   startListenBtn: $("#startListenBtn"),
   stopListenBtn: $("#stopListenBtn"),
+  mobileStartListenBtn: $("#mobileStartListenBtn"),
+  mobileStopListenBtn: $("#mobileStopListenBtn"),
   interimText: $("#interimText"),
   entryTemplate: $("#entryTemplate")
 };
@@ -275,6 +278,8 @@ function bindEvents() {
 
   els.startListenBtn.addEventListener("click", startListening);
   els.stopListenBtn.addEventListener("click", stopListening);
+  els.mobileStartListenBtn.addEventListener("click", startListening);
+  els.mobileStopListenBtn.addEventListener("click", stopListening);
 }
 
 function saveAndRender() {
@@ -283,6 +288,7 @@ function saveAndRender() {
 }
 
 function render() {
+  document.body.classList.toggle("is-listening", speechListening);
   els.sessionTitle.value = state.sessionTitle;
   els.seatCountSelect.value = String(state.seatCount);
   els.autoSeatToggle.checked = Boolean(state.settings.autoSeatByPrefix);
@@ -418,18 +424,23 @@ function renderEntries() {
 }
 
 function renderTranscribeStatus(message = "") {
+  let statusText;
   if (message) {
-    els.transcribeStatus.textContent = message;
+    statusText = message;
   } else if (speechListening) {
-    els.transcribeStatus.textContent = "正在转文字";
+    statusText = "正在转文字";
   } else if (!SpeechRecognition) {
-    els.transcribeStatus.textContent = "当前浏览器不支持";
+    statusText = "当前浏览器不支持";
   } else {
-    els.transcribeStatus.textContent = "待启动";
+    statusText = "待启动";
   }
 
+  els.transcribeStatus.textContent = statusText;
+  els.mobileTranscribeStatus.textContent = statusText;
   els.startListenBtn.disabled = !SpeechRecognition || speechListening;
   els.stopListenBtn.disabled = !speechListening;
+  els.mobileStartListenBtn.disabled = !SpeechRecognition || speechListening;
+  els.mobileStopListenBtn.disabled = !speechListening;
 }
 
 function filteredEntries() {

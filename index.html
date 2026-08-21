@@ -2,11 +2,13 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#0f766e" />
     <title>狼人杀发言记录器</title>
     <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./styles.css?v=4" />
+    <link rel="stylesheet" href="./styles.css?v=5" />
   </head>
   <body>
     <div class="app-shell">
@@ -101,6 +103,12 @@
           </section>
         </aside>
       </main>
+
+      <div class="mobile-voice-dock" aria-label="语音快捷控制">
+        <span id="mobileTranscribeStatus">待启动</span>
+        <button id="mobileStartListenBtn" class="primary-btn" type="button">开始</button>
+        <button id="mobileStopListenBtn" class="danger-btn" type="button">停止</button>
+      </div>
     </div>
 
     <template id="entryTemplate">
@@ -116,6 +124,6 @@
       </article>
     </template>
 
-    <script src="./app.js?v=4" type="module"></script>
+    <script src="./app.js?v=5" type="module"></script>
   </body>
 </html>
