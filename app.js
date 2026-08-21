@@ -51,6 +51,7 @@ const els = {
   mobileStartListenBtn: $("#mobileStartListenBtn"),
   mobileStopListenBtn: $("#mobileStopListenBtn"),
   interimText: $("#interimText"),
+  permissionHint: $("#permissionHint"),
   entryTemplate: $("#entryTemplate")
 };
 
@@ -424,6 +425,7 @@ function renderEntries() {
 }
 
 function renderTranscribeStatus(message = "") {
+  document.body.classList.toggle("is-listening", speechListening);
   let statusText;
   if (message) {
     statusText = message;
@@ -504,13 +506,25 @@ function addEntryFromText(rawText, source = "voice", fallbackSeatId = state.acti
   saveAndRender();
 }
 
-function startListening() {
+async function startListening() {
   if (!SpeechRecognition) {
-    renderTranscribeStatus("当前浏览器不支持");
+    const message = speechUnsupportedMessage();
+    renderTranscribeStatus(message.status);
+    setPermissionHint(message.hint);
     return;
   }
 
-  stopListening();
+  renderTranscribeStatus("正在请求麦克风");
+  setPermissionHint("");
+  const permission = await ensureMicrophoneReady();
+  if (!permission.ok) {
+    speechListening = false;
+    renderTranscribeStatus(permission.status);
+    setPermissionHint(permission.hint);
+    return;
+  }
+
+  stopRecognitionInstance();
   speechListening = true;
   recognition = new SpeechRecognition();
   recognition.lang = "zh-CN";
@@ -534,8 +548,13 @@ function startListening() {
   };
 
   recognition.onerror = (event) => {
-    const message = event.error === "not-allowed" ? "麦克风未授权" : "转写中断";
-    renderTranscribeStatus(message);
+    const message = speechErrorMessage(event.error);
+    if (message.fatal) {
+      speechListening = false;
+      stopRecognitionInstance();
+    }
+    renderTranscribeStatus(message.status);
+    setPermissionHint(message.hint);
   };
 
   recognition.onend = () => {
@@ -552,6 +571,7 @@ function startListening() {
 
   try {
     recognition.start();
+    setPermissionHint("请保持这个页面在前台。手机浏览器无法在后台直接读取网易狼人杀 App 的内部声音。");
     renderTranscribeStatus();
   } catch {
     renderTranscribeStatus("转写已启动");
@@ -560,15 +580,139 @@ function startListening() {
 
 function stopListening() {
   speechListening = false;
-  if (recognition) {
-    recognition.onend = null;
-    try {
-      recognition.stop();
-    } catch {}
-    recognition = null;
-  }
+  stopRecognitionInstance();
   els.interimText.textContent = "";
+  setPermissionHint("");
   renderTranscribeStatus();
+}
+
+function stopRecognitionInstance() {
+  if (!recognition) return;
+  recognition.onend = null;
+  recognition.onerror = null;
+  try {
+    recognition.stop();
+  } catch {}
+  recognition = null;
+}
+
+async function ensureMicrophoneReady() {
+  if (!window.isSecureContext && !["localhost", "127.0.0.1"].includes(location.hostname)) {
+    return {
+      ok: false,
+      status: "需要 HTTPS 打开",
+      hint: "请用 https://cmeng228.github.io/werewolf-speech-recorder/ 这个链接打开。"
+    };
+  }
+
+  if (!navigator.mediaDevices?.getUserMedia) {
+    return {
+      ok: false,
+      status: "浏览器无法请求麦克风",
+      hint: browserHint()
+    };
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach((track) => track.stop());
+    return { ok: true };
+  } catch (error) {
+    return microphoneErrorMessage(error);
+  }
+}
+
+function microphoneErrorMessage(error) {
+  const name = error?.name || "";
+  if (name === "NotAllowedError" || name === "SecurityError" || name === "PermissionDeniedError") {
+    return {
+      ok: false,
+      status: "麦克风未授权",
+      hint: "请在手机浏览器的地址栏权限里允许麦克风；如果已经拒绝过，需要到系统设置里给当前浏览器打开麦克风权限，然后刷新页面。"
+    };
+  }
+
+  if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+    return {
+      ok: false,
+      status: "没有可用麦克风",
+      hint: "手机没有给浏览器暴露可用麦克风。请检查系统麦克风权限，或换 Chrome/Edge/系统浏览器打开。"
+    };
+  }
+
+  if (name === "NotReadableError" || name === "TrackStartError") {
+    return {
+      ok: false,
+      status: "麦克风被占用",
+      hint: "请关掉正在占用麦克风的录音、通话、直播或其他页面，再回到这里重新开始。"
+    };
+  }
+
+  return {
+    ok: false,
+    status: "麦克风不可用",
+    hint: browserHint()
+  };
+}
+
+function speechUnsupportedMessage() {
+  return {
+    status: "当前浏览器不支持",
+    hint: browserHint()
+  };
+}
+
+function speechErrorMessage(error) {
+  if (error === "not-allowed" || error === "service-not-allowed") {
+    return {
+      fatal: true,
+      status: "麦克风未授权",
+      hint: "请允许麦克风权限后刷新页面。若你是在微信、QQ、飞书等内置浏览器里打开，建议复制链接到 Chrome、Edge 或手机自带浏览器。"
+    };
+  }
+
+  if (error === "audio-capture") {
+    return {
+      fatal: true,
+      status: "没有收到麦克风声音",
+      hint: "请检查系统麦克风权限，确认没有被其他 App 占用。"
+    };
+  }
+
+  if (error === "network") {
+    return {
+      fatal: false,
+      status: "转写网络异常",
+      hint: "语音识别需要浏览器服务可用。请换一个网络，或稍后重新开始。"
+    };
+  }
+
+  return {
+    fatal: false,
+    status: "转写中断",
+    hint: "请停一下再重新开始；如果反复中断，建议换 Chrome、Edge 或手机自带浏览器。"
+  };
+}
+
+function browserHint() {
+  const ua = navigator.userAgent;
+  const isIOS = /iPad|iPhone|iPod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isEmbedded = /MicroMessenger|QQ\/|DingTalk|Lark|Feishu|FBAN|Line\//i.test(ua);
+
+  if (isEmbedded) {
+    return "当前像是 App 内置浏览器，麦克风和语音识别经常不可用。请复制链接到 Chrome、Edge 或手机自带浏览器打开。";
+  }
+
+  if (isIOS) {
+    return "iPhone 上部分浏览器不支持网页语音识别。请先确认 Safari/浏览器麦克风权限已开启；如果仍不行，只能手动输入或使用系统听写后粘贴。";
+  }
+
+  return "请用 Chrome、Edge 或手机自带浏览器打开，并在弹窗里允许麦克风。";
+}
+
+function setPermissionHint(message) {
+  els.permissionHint.textContent = message;
+  els.permissionHint.hidden = !message;
 }
 
 function detectSeatPrefix(text) {

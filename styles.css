@@ -494,6 +494,17 @@ textarea:focus {
   color: #8a94a3;
 }
 
+.permission-hint {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid rgba(180, 83, 9, 0.28);
+  border-radius: 8px;
+  background: #fff7ed;
+  color: #8a4b10;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
 .is-listening .transcribe-box {
   border-color: rgba(15, 118, 110, 0.45);
   box-shadow: 0 12px 28px rgba(15, 118, 110, 0.14);
@@ -684,6 +695,10 @@ textarea:focus {
     min-height: 52px;
     margin-top: 0;
     font-size: 14px;
+  }
+
+  .permission-hint {
+    margin-top: 0;
   }
 
   .seat-grid {
