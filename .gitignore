@@ -1,0 +1,6 @@
+server.out.log
+server.err.log
+gh-auth-*.log
+node_modules/
+__pycache__/
+*.pyc

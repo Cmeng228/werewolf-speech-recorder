@@ -1,0 +1,9 @@
+{
+  "name": "狼人杀发言记牌器",
+  "short_name": "发言记牌器",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#0f766e",
+  "icons": []
+}
