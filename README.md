@@ -1,8 +1,14 @@
-# 狼人杀发言记牌器
+# 狼人杀发言记录器
 
-本地运行的发言记录工具，支持板型切换、席位、警上阶段、天数、阶段、玩家身份标记、玩家备注、手动补记、浏览器听写、可选音频输入源转写、JSON/Markdown 导入导出。
+一个轻量的发言记录页面，保留席位、警上、天数、阶段、手动补记、语音转文字和导入导出。
 
-## 启动
+分享链接：
+
+```text
+https://cmeng228.github.io/werewolf-speech-recorder/
+```
+
+## 本地运行
 
 ```powershell
 & "C:\Users\cob\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe" tools/server.mjs
@@ -14,36 +20,6 @@
 http://127.0.0.1:5186
 ```
 
-## 转写方式
+## 语音转文字
 
-1. 浏览器听写：适合先试用。Chrome/Edge 支持度最好，识别用系统默认麦克风。
-2. 指定输入源：需要先设置 `OPENAI_API_KEY`，然后勾选“指定输入源”。这一路可以选择电脑看到的音频输入设备，例如手机蓝牙麦克风、声卡输入、VB-Cable、Stereo Mix。
-
-示例：
-
-```powershell
-$env:OPENAI_API_KEY="你的密钥"
-& "C:\Users\cob\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe" tools/server.mjs
-```
-
-安卓/iOS 不允许普通第三方工具在后台直接读取另一个 APP 的内部音频。要记录网易狼人杀 APP 的声音，需要把手机声音路由到电脑输入源，或后续做 Android 原生版并走系统录屏/无障碍授权。
-
-## 板型配置
-
-当前板型来自：
-
-```text
-E:\网页下载\板子配置 (2).xlsx
-```
-
-已提取为：
-
-```text
-boards-config.json
-```
-
-如果换了新的板子表，可以重新生成：
-
-```powershell
-& "C:\Users\cob\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" tools\extract_boards.py "E:\网页下载\板子配置 (2).xlsx" boards-config.json
-```
+公开网页使用浏览器自带的语音识别能力，Chrome 和 Edge 支持度最好。浏览器只能读取已授权的麦克风输入；如果要记录手机里网易狼人杀的声音，需要把手机声音路由到电脑或浏览器当前可用的麦克风输入。

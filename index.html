@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0f766e" />
-    <title>狼人杀发言记牌器</title>
+    <title>狼人杀发言记录器</title>
     <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./styles.css?v=2" />
+    <link rel="stylesheet" href="./styles.css?v=4" />
   </head>
   <body>
     <div class="app-shell">
@@ -14,12 +14,11 @@
         <div class="brand-block">
           <div class="brand-mark" aria-hidden="true"></div>
           <div>
-            <h1>狼人杀发言记牌器</h1>
+            <h1>狼人杀发言记录器</h1>
             <input id="sessionTitle" class="title-input" type="text" aria-label="对局标题" />
           </div>
         </div>
         <div class="top-actions">
-          <button id="compactModeBtn" class="icon-btn" type="button" title="紧凑模式">紧凑</button>
           <button id="exportMdBtn" class="plain-btn" type="button">导出 MD</button>
           <button id="exportJsonBtn" class="plain-btn" type="button">导出 JSON</button>
           <button id="importBtn" class="plain-btn" type="button">导入</button>
@@ -33,10 +32,10 @@
       </nav>
 
       <main class="workspace">
-        <section class="seat-panel" aria-label="席位">
+        <section class="seat-panel" aria-label="发言席位">
           <div class="panel-head">
             <div>
-              <h2>席位</h2>
+              <h2>发言席位</h2>
               <p id="activeSeatLabel"></p>
             </div>
             <select id="seatCountSelect" aria-label="席位数量">
@@ -49,30 +48,25 @@
               <option value="20">20人</option>
             </select>
           </div>
-          <div class="board-box">
-            <label for="boardSelect">板型</label>
-            <select id="boardSelect" aria-label="板型"></select>
-            <div id="boardSummary" class="board-summary"></div>
-            <div id="rolePool" class="role-pool" aria-label="身份池"></div>
-          </div>
           <div id="seatGrid" class="seat-grid"></div>
+          <label class="seat-name-line" for="activeSeatNameInput">
+            <span>昵称</span>
+            <input id="activeSeatNameInput" type="text" placeholder="可选" />
+          </label>
         </section>
 
-        <section class="record-panel" aria-label="记录">
+        <section class="record-panel" aria-label="发言记录">
           <div class="phase-bar" role="group" aria-label="阶段">
             <button data-phase="police" type="button">警上发言</button>
-            <button data-phase="day" type="button">白天</button>
-            <button data-phase="night" type="button">夜晚</button>
-            <button data-phase="vote" type="button">投票</button>
-            <button data-phase="other" type="button">补充</button>
+            <button data-phase="day" type="button">白天发言</button>
+            <button data-phase="vote" type="button">投票发言</button>
+            <button data-phase="other" type="button">补充记录</button>
           </div>
 
-          <div class="manual-box">
-            <div class="manual-row">
-              <select id="manualSeatSelect" aria-label="发言席位"></select>
-              <textarea id="manualText" rows="3" placeholder="补记发言、票型或盘逻辑"></textarea>
-              <button id="addManualBtn" class="primary-btn" type="button">记下</button>
-            </div>
+          <div class="manual-row">
+            <select id="manualSeatSelect" aria-label="发言席位"></select>
+            <textarea id="manualText" rows="3" placeholder="输入发言内容"></textarea>
+            <button id="addManualBtn" class="primary-btn" type="button">记下</button>
           </div>
 
           <div class="filter-row">
@@ -84,66 +78,26 @@
           <div id="entryList" class="entry-list"></div>
         </section>
 
-        <aside class="side-panel" aria-label="转写与备注">
-          <section class="speaker-box">
-            <div class="panel-head">
-              <div>
-                <h2>当前发言</h2>
-                <p id="speakerHint"></p>
-              </div>
-            </div>
-            <div id="speakerButtons" class="speaker-buttons"></div>
-          </section>
-
+        <aside class="voice-panel" aria-label="语音转文字">
           <section class="transcribe-box">
             <div class="panel-head">
               <div>
-                <h2>转写</h2>
+                <h2>语音转文字</h2>
                 <p id="transcribeStatus">待启动</p>
               </div>
             </div>
-            <div class="toggle-line">
-              <label>
-                <input id="autoSeatToggle" type="checkbox" />
-                识别句首席位
-              </label>
-              <label>
-                <input id="serverModeToggle" type="checkbox" />
-                指定输入源
-              </label>
-            </div>
-            <div class="input-source">
-              <select id="audioDeviceSelect" aria-label="音频输入源"></select>
-              <div class="level-track" aria-label="音量">
-                <div id="levelFill"></div>
-              </div>
-            </div>
+
+            <label class="toggle-pill">
+              <input id="autoSeatToggle" type="checkbox" />
+              句首识别座位号
+            </label>
+
             <div class="transcribe-actions">
-              <button id="startListenBtn" class="primary-btn" type="button">开始</button>
+              <button id="startListenBtn" class="primary-btn" type="button">开始转写</button>
               <button id="stopListenBtn" class="danger-btn" type="button">停止</button>
             </div>
-            <div id="interimText" class="interim-text"></div>
-          </section>
 
-          <section class="note-box">
-            <div class="panel-head">
-              <div>
-                <h2>玩家备注</h2>
-                <p id="noteSeatLabel"></p>
-              </div>
-              <button id="clearRolesBtn" class="plain-btn" type="button">清空身份</button>
-            </div>
-            <input id="playerNameInput" type="text" placeholder="昵称" aria-label="玩家昵称" />
-            <div class="note-meta">
-              <select id="playerRoleInput" aria-label="身份标记"></select>
-              <select id="playerStatusInput" aria-label="状态">
-                <option value="alive">在场</option>
-                <option value="dead">出局</option>
-                <option value="suspect">重点</option>
-                <option value="trusted">偏好</option>
-              </select>
-            </div>
-            <textarea id="playerNoteInput" rows="6" placeholder="站边、坑位、警徽流、发言风格"></textarea>
+            <div id="interimText" class="interim-text"></div>
           </section>
         </aside>
       </main>
@@ -162,6 +116,6 @@
       </article>
     </template>
 
-    <script src="./app.js?v=2" type="module"></script>
+    <script src="./app.js?v=4" type="module"></script>
   </body>
 </html>

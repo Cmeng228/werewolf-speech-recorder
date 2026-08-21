@@ -1,6 +1,6 @@
 {
-  "name": "狼人杀发言记牌器",
-  "short_name": "发言记牌器",
+  "name": "狼人杀发言记录器",
+  "short_name": "发言记录",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f6f8",
