@@ -47,7 +47,9 @@ const els = {
   mobileTranscribeStatus: $("#mobileTranscribeStatus"),
   autoSeatToggle: $("#autoSeatToggle"),
   startListenBtn: $("#startListenBtn"),
+  keyboardVoiceBtn: $("#keyboardVoiceBtn"),
   stopListenBtn: $("#stopListenBtn"),
+  mobileKeyboardVoiceBtn: $("#mobileKeyboardVoiceBtn"),
   mobileStartListenBtn: $("#mobileStartListenBtn"),
   mobileStopListenBtn: $("#mobileStopListenBtn"),
   interimText: $("#interimText"),
@@ -278,7 +280,9 @@ function bindEvents() {
   });
 
   els.startListenBtn.addEventListener("click", startListening);
+  els.keyboardVoiceBtn.addEventListener("click", focusKeyboardVoiceInput);
   els.stopListenBtn.addEventListener("click", stopListening);
+  els.mobileKeyboardVoiceBtn.addEventListener("click", focusKeyboardVoiceInput);
   els.mobileStartListenBtn.addEventListener("click", startListening);
   els.mobileStopListenBtn.addEventListener("click", stopListening);
 }
@@ -441,8 +445,10 @@ function renderTranscribeStatus(message = "") {
   els.mobileTranscribeStatus.textContent = statusText;
   els.startListenBtn.disabled = !SpeechRecognition || speechListening;
   els.stopListenBtn.disabled = !speechListening;
+  els.keyboardVoiceBtn.disabled = false;
   els.mobileStartListenBtn.disabled = !SpeechRecognition || speechListening;
   els.mobileStopListenBtn.disabled = !speechListening;
+  els.mobileKeyboardVoiceBtn.disabled = false;
 }
 
 function filteredEntries() {
@@ -578,6 +584,21 @@ async function startListening() {
   }
 }
 
+function focusKeyboardVoiceInput() {
+  stopListening();
+  renderTranscribeStatus("使用键盘语音");
+  setPermissionHint("输入框已准备好。请点手机键盘上的麦克风说话，文字出来后点“记下”。这条路使用输入法自己的语音能力，不需要网页拿到麦克风权限。");
+  els.manualText.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+  window.setTimeout(() => {
+    els.manualText.focus();
+    const end = els.manualText.value.length;
+    els.manualText.setSelectionRange(end, end);
+  }, 260);
+}
+
 function stopListening() {
   speechListening = false;
   stopRecognitionInstance();
@@ -628,7 +649,7 @@ function microphoneErrorMessage(error) {
     return {
       ok: false,
       status: "麦克风未授权",
-      hint: "请在手机浏览器的地址栏权限里允许麦克风；如果已经拒绝过，需要到系统设置里给当前浏览器打开麦克风权限，然后刷新页面。"
+      hint: "请在手机浏览器的地址栏权限里允许麦克风；如果小米系统不给网页弹权限，可以点“键盘语音输入”，改用输入法麦克风。"
     };
   }
 
@@ -667,7 +688,7 @@ function speechErrorMessage(error) {
     return {
       fatal: true,
       status: "麦克风未授权",
-      hint: "请允许麦克风权限后刷新页面。若你是在微信、QQ、飞书等内置浏览器里打开，建议复制链接到 Chrome、Edge 或手机自带浏览器。"
+      hint: "请允许麦克风权限后刷新页面。若小米系统一直不给网页权限，点“键盘语音输入”，用手机输入法自带麦克风。"
     };
   }
 
@@ -700,14 +721,14 @@ function browserHint() {
   const isEmbedded = /MicroMessenger|QQ\/|DingTalk|Lark|Feishu|FBAN|Line\//i.test(ua);
 
   if (isEmbedded) {
-    return "当前像是 App 内置浏览器，麦克风和语音识别经常不可用。请复制链接到 Chrome、Edge 或手机自带浏览器打开。";
+    return "当前像是 App 内置浏览器，麦克风和语音识别经常不可用。请复制链接到 Chrome、Edge 或手机自带浏览器；仍不行就用“键盘语音输入”。";
   }
 
   if (isIOS) {
-    return "iPhone 上部分浏览器不支持网页语音识别。请先确认 Safari/浏览器麦克风权限已开启；如果仍不行，只能手动输入或使用系统听写后粘贴。";
+    return "部分手机浏览器不支持网页语音识别。请先确认浏览器麦克风权限已开启；如果仍不行，点“键盘语音输入”用系统听写。";
   }
 
-  return "请用 Chrome、Edge 或手机自带浏览器打开，并在弹窗里允许麦克风。";
+  return "请用 Chrome、Edge 或手机自带浏览器打开，并在弹窗里允许麦克风；小米如果不弹权限，就用“键盘语音输入”。";
 }
 
 function setPermissionHint(message) {

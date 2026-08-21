@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#0f766e" />
     <title>狼人杀发言记录器</title>
     <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./styles.css?v=6" />
+    <link rel="stylesheet" href="./styles.css?v=7" />
   </head>
   <body>
     <div class="app-shell">
@@ -96,6 +96,7 @@
 
             <div class="transcribe-actions">
               <button id="startListenBtn" class="primary-btn" type="button">开始转写</button>
+              <button id="keyboardVoiceBtn" class="plain-btn" type="button">键盘语音输入</button>
               <button id="stopListenBtn" class="danger-btn" type="button">停止</button>
             </div>
 
@@ -107,6 +108,7 @@
 
       <div class="mobile-voice-dock" aria-label="语音快捷控制">
         <span id="mobileTranscribeStatus">待启动</span>
+        <button id="mobileKeyboardVoiceBtn" class="plain-btn" type="button">键盘</button>
         <button id="mobileStartListenBtn" class="primary-btn" type="button">开始</button>
         <button id="mobileStopListenBtn" class="danger-btn" type="button">停止</button>
       </div>
@@ -125,6 +127,6 @@
       </article>
     </template>
 
-    <script src="./app.js?v=6" type="module"></script>
+    <script src="./app.js?v=7" type="module"></script>
   </body>
 </html>

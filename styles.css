@@ -472,7 +472,7 @@ textarea:focus {
 
 .transcribe-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 8px;
   margin-top: 12px;
 }
@@ -623,7 +623,7 @@ textarea:focus {
     bottom: 0;
     z-index: 20;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 74px 74px;
+    grid-template-columns: minmax(0, 1fr) 60px 60px 60px;
     gap: 8px;
     align-items: center;
     padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
@@ -644,7 +644,8 @@ textarea:focus {
 
   .mobile-voice-dock button {
     min-height: 44px;
-    padding: 0 8px;
+    padding: 0 6px;
+    font-size: 14px;
   }
 
   .seat-panel {
@@ -689,6 +690,21 @@ textarea:focus {
     grid-template-columns: 1fr 1fr;
     gap: 8px;
     margin-top: 0;
+  }
+
+  #startListenBtn {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  #stopListenBtn {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  #keyboardVoiceBtn {
+    grid-column: 1 / -1;
+    grid-row: 2;
   }
 
   .interim-text {
